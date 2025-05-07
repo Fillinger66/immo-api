@@ -1,0 +1,50 @@
+# Utiliser une image de base Python légère
+# L'utilisation d'une version spécifique est recommandée pour la reproductibilité
+FROM python:3.10-slim
+
+# Définir le répertoire de travail à l'intérieur du conteneur
+WORKDIR /app
+
+# Copier le fichier requirements.txt dans le conteneur
+COPY requirements.txt .
+
+# Installer les dépendances Python
+# Utiliser --no-cache-dir pour éviter de stocker le cache, réduisant la taille de l'image
+# Utiliser --upgrade pip pour s'assurer que pip est à jour
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copier le code de l'application et le fichier modèle entraîné dans le conteneur
+# Assurez-vous que 'main.py' est le nom de votre fichier d'application FastAPI
+# Assurez-vous que 'xgboost_model.json' est le nom de votre fichier modèle
+COPY api.py .
+
+# --- Ajouter des instructions COPY pour vos autres répertoires ---
+# Remplacez 'votre_repertoire_pipelines' et 'votre_repertoire_models'
+# par les noms réels de vos répertoires.
+# Assurez-vous que ces répertoires existent dans le même répertoire que votre Dockerfile
+# ou ajustez les chemins source si nécessaire.
+
+COPY model /app/model
+COPY pipeline /app/pipeline
+COPY lib /app/lib
+
+# Si vos pipelines ou modèles sont dans des sous-répertoires spécifiques, ajustez les chemins de destination
+# Exemple : COPY mon_projet/pipelines /app/pipelines
+# Exemple : COPY mon_projet/models /app/models
+
+
+# Exposer le port sur lequel l'application écoutera
+# Uvicorn utilise par défaut le port 8000
+EXPOSE 8000
+
+# Définir la commande pour exécuter votre application
+# 'uvicorn main:app' indique à uvicorn de trouver l'instance 'app' dans 'main.py'
+# '--host 0.0.0.0' fait en sorte que le serveur écoute sur toutes les interfaces réseau disponibles,
+# ce qui est nécessaire à l'intérieur d'un conteneur Docker
+# '--port 8000' spécifie le port
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# Optionnel : Ajouter des métadonnées
+LABEL maintainer="Votre Nom <votre.email@example.com>"
+LABEL description="Application FastAPI pour les prédictions du modèle XGBoost avec répertoires additionnels"

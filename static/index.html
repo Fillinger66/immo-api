@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Price Prediction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Property Price Prediction</h1>
+        <p>Enter the property details below to get a price prediction.</p>
+
+        <form id="predictionForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group">
+                <label for="type">Type:</label>
+                <select id="type" name="type" required>
+                    <option value="">Select Type</option>
+                    <option value="HOUSE">HOUSE</option>
+                    <option value="APARTMENT">APARTMENT</option>
+                    </select>
+            </div>
+
+             <div class="form-group">
+                <label for="subtype">Subtype:</label>
+                <input type="text" id="subtype" name="subtype" required>
+            </div>
+
+            <div class="form-group">
+                <label for="bedroomCount">Bedroom Count:</label>
+                <input type="number" id="bedroomCount" name="bedroomCount" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="bathroomCount">Bathroom Count:</label>
+                <input type="number" id="bathroomCount" name="bathroomCount" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="province">Province:</label>
+                 <input type="text" id="province" name="province" required>
+            </div>
+
+            <div class="form-group">
+                <label for="locality">Locality:</label>
+                <input type="text" id="locality" name="locality" required>
+            </div>
+
+            <div class="form-group">
+                <label for="postCode">Post Code:</label>
+                <input type="number" id="postCode" name="postCode" required>
+            </div>
+
+            <div class="form-group">
+                <label for="habitableSurface">Habitable Surface (sqm):</label>
+                <input type="number" id="habitableSurface" name="habitableSurface" min="0" step="0.1">
+            </div>
+
+            <div class="form-group">
+                <label for="buildingCondition">Building Condition:</label>
+                <select id="buildingCondition" name="buildingCondition">
+                    <option value="">Select Condition</option>
+                    <option value="NEW">NEW</option>
+                    <option value="GOOD">GOOD</option>
+                    <option value="TO_RENOVATE">TO_RENOVATE</option>
+                    <option value="TO_RESTORE">TO_RESTORE</option>
+                    <option value="AS_NEW">AS_NEW</option>
+                    </select>
+            </div>
+
+            <div class="form-group">
+                <label for="buildingConstructionYear">Construction Year:</label>
+                <input type="number" id="buildingConstructionYear" name="buildingConstructionYear" min="1000" max="2099">
+            </div>
+
+            <div class="form-group">
+                <label for="facedeCount">Facade Count:</label>
+                <input type="number" id="facedeCount" name="facedeCount" min="1">
+            </div>
+
+             <div class="form-group col-span-full">
+                <label class="block mb-2">Other Features:</label>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    <label class="flex items-center"><input type="checkbox" name="hasLift" value="true" class="mr-1"> Has Lift</label>
+                    <label class="flex items-center"><input type="checkbox" name="hasHeatPump" value="true" class="mr-1"> Has Heat Pump</label>
+                    <label class="flex items-center"><input type="checkbox" name="hasPhotovoltaicPanels" value="true" class="mr-1"> Has PV Panels</label>
+                    <label class="flex items-center"><input type="checkbox" name="hasThermicPanels" value="true" class="mr-1"> Has Thermic Panels</label>
+                    <label class="flex items-center"><input type="checkbox" name="hasGarden" value="true" class="mr-1"> Has Garden</label>
+                     <label class="flex items-center"><input type="checkbox" name="hasAirConditioning" value="true" class="mr-1"> Has AC</label>
+                    <label class="flex items-center"><input type="checkbox" name="hasArmoredDoor" value="true" class="mr-1"> Has Armored Door</label>
+                    <label class="flex items-center"><input type="checkbox" name="hasVisiophone" value="true" class="mr-1"> Has Visiophone</label>
+                    <label class="flex items-center"><input type="checkbox" name="hasOffice" value="true" class="mr-1"> Has Office</label>
+                    <label class="flex items-center"><input type="checkbox" name="hasSwimmingPool" value="true" class="mr-1"> Has Swimming Pool</label>
+                     <label class="flex items-center"><input type="checkbox" name="hasFireplace" value="true" class="mr-1"> Has Fireplace</label>
+                    <label class="flex items-center"><input type="checkbox" name="hasTerrace" value="true" class="mr-1"> Has Terrace</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="floodZoneType">Flood Zone Type:</label>
+                 <input type="text" id="floodZoneType" name="floodZoneType">
+            </div>
+
+            <div class="form-group">
+                <label for="heatingType">Heating Type:</label>
+                 <input type="text" id="heatingType" name="heatingType">
+            </div>
+
+             <div class="form-group">
+                <label for="kitchenType">Kitchen Type:</label>
+                 <input type="text" id="kitchenType" name="kitchenType">
+            </div>
+
+            <div class="form-group">
+                <label for="landSurface">Land Surface (sqm):</label>
+                <input type="number" id="landSurface" name="landSurface" min="0" step="0.1">
+            </div>
+
+            <div class="form-group">
+                <label for="gardenSurface">Garden Surface (sqm):</label>
+                <input type="number" id="gardenSurface" name="gardenSurface" min="0" step="0.1">
+            </div>
+
+            <div class="form-group">
+                <label for="parkingCountIndoor">Indoor Parking Count:</label>
+                <input type="number" id="parkingCountIndoor" name="parkingCountIndoor" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="parkingCountOutdoor">Outdoor Parking Count:</label>
+                <input type="number" id="parkingCountOutdoor" name="parkingCountOutdoor" min="0">
+            </div>
+
+             <div class="form-group">
+                <label for="toiletCount">Toilet Count:</label>
+                <input type="number" id="toiletCount" name="toiletCount" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="terraceSurface">Terrace Surface (sqm):</label>
+                <input type="number" id="terraceSurface" name="terraceSurface" min="0" step="0.1">
+            </div>
+
+            <div class="form-group">
+                <label for="terraceOrientation">Terrace Orientation:</label>
+                 <input type="text" id="terraceOrientation" name="terraceOrientation">
+            </div>
+
+            <div class="form-group">
+                <label for="epcScore">EPC Score:</label>
+                 <input type="text" id="epcScore" name="epcScore">
+            </div>
+
+            <div class="form-group">
+                <label for="cadastralIncome">Cadastral Income:</label>
+                <input type="number" id="cadastralIncome" name="cadastralIncome" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="primaryEnergyConsumptionPerSqm">Primary Energy Consumption (kWh/sqm):</label>
+                <input type="number" id="primaryEnergyConsumptionPerSqm" name="primaryEnergyConsumptionPerSqm" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="latitude">Latitude:</label>
+                <input type="number" id="latitude" name="latitude" step="0.000001">
+            </div>
+
+            <div class="form-group">
+                <label for="longitude">Longitude:</label>
+                <input type="number" id="longitude" name="longitude" step="0.000001">
+            </div>
+
+
+            <div class="form-group col-span-full text-center">
+                <button type="submit">Get Prediction</button>
+            </div>
+        </form>
+
+        <div id="predictionResult" class="hidden">
+            </div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const jsonData = {};
+
+            // Collect form data and format it into a JSON object
+            // Handle different input types (text, number, checkbox)
+            for (const [key, value] of formData.entries()) {
+                // For numbers, convert to float or int
+                if (['bedroomCount', 'bathroomCount', 'postCode', 'buildingConstructionYear',
+                     'facedeCount', 'parkingCountIndoor', 'parkingCountOutdoor',
+                     'toiletCount', 'cadastralIncome', 'primaryEnergyConsumptionPerSqm'].includes(key)) {
+                    jsonData[key] = value ? parseInt(value) : null;
+                } else if (['habitableSurface', 'landSurface', 'gardenSurface', 'terraceSurface',
+                           'latitude', 'longitude'].includes(key)) {
+                     jsonData[key] = value ? parseFloat(value) : null;
+                }
+                // For checkboxes, they only appear in formData if checked.
+                // We need to explicitly set false for unchecked ones if the model expects a boolean.
+                // A simpler approach for this form is to only include checked ones and handle missing in backend,
+                // but let's explicitly set booleans based on presence/absence for clarity.
+                else if (['hasLift', 'hasHeatPump', 'hasPhotovoltaicPanels', 'hasThermicPanels',
+                          'hasGarden', 'hasAirConditioning', 'hasArmoredDoor', 'hasVisiophone',
+                          'hasOffice', 'hasSwimmingPool', 'hasFireplace', 'hasTerrace'].includes(key)) {
+                     // If the checkbox is present in formData, it was checked (value is 'true' from HTML)
+                     jsonData[key] = value === 'true';
+                 }
+                else {
+                    // For other text/select inputs
+                    jsonData[key] = value || null; // Use null for empty strings
+                }
+            }
+
+             // Explicitly set boolean fields to false if they were not checked
+            const booleanFields = ['hasLift', 'hasHeatPump', 'hasPhotovoltaicPanels', 'hasThermicPanels',
+                                   'hasGarden', 'hasAirConditioning', 'hasArmoredDoor', 'hasVisiophone',
+                                   'hasOffice', 'hasSwimmingPool', 'hasFireplace', 'hasTerrace'];
+            booleanFields.forEach(field => {
+                if (jsonData[field] === undefined) {
+                    jsonData[field] = false;
+                }
+            });
+
+
+            console.log("Sending JSON data:", jsonData); // Log the JSON being sent
+
+            const predictionResultDiv = document.getElementById('predictionResult');
+
+            try {
+                // Send the JSON data to the FastAPI /predict endpoint
+                const response = await fetch('/predict/', { // Use '/predict/' if running on the same host/port as FastAPI
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(jsonData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+                }
+
+                const result = await response.json();
+                console.log("Received prediction:", result); // Log the received result
+
+                // Display the prediction result
+                if (result && result.prediction !== undefined) {
+                     // Format the prediction nicely, e.g., as currency
+                    const predictedPrice = Array.isArray(result.prediction) ? result.prediction[0] : result.prediction; // Handle potential list output
+                    predictionResultDiv.innerHTML = `Predicted Price: <strong>${predictedPrice.toFixed(2)} €</strong>`;
+                    predictionResultDiv.classList.remove('hidden');
+                    predictionResultDiv.style.backgroundColor = '#d4edda'; /* Success color */
+                    predictionResultDiv.style.borderColor = '#c3e6cb';
+                    predictionResultDiv.style.color = '#155724';
+                } else {
+                     predictionResultDiv.innerHTML = `Prediction received, but format is unexpected: ${JSON.stringify(result)}`;
+                     predictionResultDiv.classList.remove('hidden');
+                     predictionResultDiv.style.backgroundColor = '#fff3cd'; /* Warning color */
+                     predictionResultDiv.style.borderColor = '#ffeeba';
+                     predictionResultDiv.style.color = '#856404';
+                }
+
+
+            } catch (error) {
+                console.error("Error fetching prediction:", error);
+                predictionResultDiv.innerHTML = `Error getting prediction: ${error.message}`;
+                predictionResultDiv.classList.remove('hidden');
+                 predictionResultDiv.style.backgroundColor = '#f8d7da'; /* Error color */
+                predictionResultDiv.style.borderColor = '#f5c6cb';
+                predictionResultDiv.style.color = '#721c24';
+            }
+        });
+    </script>
+</body>
+</html>

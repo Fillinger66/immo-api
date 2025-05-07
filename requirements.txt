@@ -1,0 +1,8 @@
+fastapi==0.110.0 # Use the specific version you need or a recent one
+uvicorn[standard]==0.29.0 # Use the specific version you need or a recent one
+xgboost==2.0.3 # Use the version you trained your model with
+pandas==2.2.2 # Use the version you used for data prep
+numpy==1.26.4 # Often a dependency, good to include
+scikit-learn
+pgeocode
+geopy
