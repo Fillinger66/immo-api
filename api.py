@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
 from typing import Optional
@@ -42,10 +43,10 @@ class PropertyFeatures(BaseModel):
     province: str
     locality: str
     postCode: int
-    habitableSurface: Optional[float] = None # Using float to handle potential decimal values
+    habitableSurface: Optional[float] = None 
     buildingCondition: Optional[str] = None
     buildingConstructionYear: Optional[int] = None
-    facedeCount: Optional[int] = None
+    facedeCount: Optional[int] = 1
     hasLift: Optional[bool] = False
     floodZoneType: Optional[str] = "NO_FLOOD_ZONE"
     heatingType: Optional[str] = None
@@ -53,7 +54,7 @@ class PropertyFeatures(BaseModel):
     hasPhotovoltaicPanels: Optional[bool] = False
     hasThermicPanels: Optional[bool] = False
     kitchenType: Optional[str] = None
-    landSurface: Optional[float] = None # Using float
+    landSurface: Optional[float] = -1 # Using float
     hasGarden: Optional[bool] = False
     gardenSurface: Optional[float] = 0 # Using float
     parkingCountIndoor: Optional[int] = 0
@@ -66,19 +67,27 @@ class PropertyFeatures(BaseModel):
     hasSwimmingPool: Optional[bool] = False
     hasFireplace: Optional[bool] = False
     hasTerrace: Optional[bool] = False
-    terraceSurface: Optional[float] = 0 # Using float
-    terraceOrientation: Optional[str] = None # Can be None
+    terraceSurface: Optional[float] = 0 
+    terraceOrientation: Optional[str] = None 
     epcScore: Optional[str] = None
     cadastralIncome: Optional[int] = None
     primaryEnergyConsumptionPerSqm: Optional[int] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    address: Optional[str] = None
 
 # --- Create a FastAPI application instance ---
 app = FastAPI(
     title="XGBoost Model API",
     description="API for making predictions using a trained XGBoost model",
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or restrict to your frontend URL
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 # The first argument "/static" is the URL path where the static files will be served.
 # The second argument "directory='static'" tells FastAPI to look inside the local 'static' folder.
@@ -105,6 +114,23 @@ async def read_root():
         html_content = f.read()
     return HTMLResponse(content=html_content)
 
+def create_dataframe(data:dict):
+    data["province"] = "Liège"
+    columns = ['type', 'subtype', 'bedroomCount', 'bathroomCount', 'province',
+       'locality', 'postCode', 'habitableSurface', 'buildingCondition',
+       'buildingConstructionYear', 'facedeCount', 'hasLift', 'floodZoneType',
+       'heatingType', 'hasHeatPump', 'hasPhotovoltaicPanels',
+       'hasThermicPanels', 'kitchenType', 'landSurface', 'hasGarden',
+       'gardenSurface', 'parkingCountIndoor', 'parkingCountOutdoor',
+       'hasAirConditioning', 'hasArmoredDoor', 'hasVisiophone', 'hasOffice',
+       'toiletCount', 'hasSwimmingPool', 'hasFireplace', 'hasTerrace',
+       'terraceSurface', 'terraceOrientation', 'epcScore', 'cadastralIncome',
+       'primaryEnergyConsumptionPerSqm', 'latitude', 'longitude']
+    
+    df = pd.DataFrame([data],columns=columns)
+    return df
+
+
 
 # --- Define the prediction endpoint ---
 @app.post("/predict/")
@@ -123,13 +149,37 @@ async def predict(data: PropertyFeatures):
         # We'll use a pandas DataFrame here as it's often convenient.
 
         # Convert the Pydantic model object to a dictionary
+        print("data:")
+        print(data)
         input_dict = data.model_dump() # Use .model_dump() for Pydantic v2+
+
+        address = input_dict["address"]
+        print("Address : "+address)
+
+        input_dict.pop("address")
         
-        df = pd.DataFrame([input_dict])
+        
+        df = create_dataframe(input_dict)
+
+        
 
         # Get lat/lng from the zip code with Nominatim
         df = DataManager.get_lat_lng_for_zipcode(df=df,verbose=1)
 
+        print(f"columns : {df.columns.to_list}")
+
+        print(f"Head : {df.head()}")
+
+        if input_dict["latitude"] == None:
+            df["latitude"] = df["zipcode_Latitude"]
+        if input_dict["latitude"] == None:
+            df["longitude"] = df["zipcode_Longitude"]
+        
+        
+        # Adjust display settings to show all columns
+        pd.set_option('display.max_columns', None)  # No limit on the number of columns to display
+        pd.set_option('display.width', None)        # No limit on the width of the display
+        pd.set_option('display.max_colwidth', None) # No truncation of column content
         print(f"df :\n{df.head()}")
 
         print("Pipeline creation")
@@ -139,6 +189,7 @@ async def predict(data: PropertyFeatures):
 
         # --- Make the prediction ---
         prediction = xgbmodel.predict(test_data)
+        print(f"Prediction : {prediction}")
 
         # Return the raw prediction(s) as a list (to ensure JSON serializability)
         return {"prediction": prediction.tolist()}
