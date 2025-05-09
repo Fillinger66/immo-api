@@ -28,10 +28,7 @@ COPY api.py .
 COPY model /app/model
 COPY pipeline /app/pipeline
 COPY lib /app/lib
-
-# Si vos pipelines ou modèles sont dans des sous-répertoires spécifiques, ajustez les chemins de destination
-# Exemple : COPY mon_projet/pipelines /app/pipelines
-# Exemple : COPY mon_projet/models /app/models
+COPY static /app/static
 
 
 # Exposer le port sur lequel l'application écoutera
@@ -46,5 +43,5 @@ EXPOSE 8000
 CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
 
 # Optionnel : Ajouter des métadonnées
-LABEL maintainer="Votre Nom <votre.email@example.com>"
-LABEL description="Application FastAPI pour les prédictions du modèle XGBoost avec répertoires additionnels"
+LABEL maintainer="Alexandre Kavadias <kavadias.alexandre@gmail.com>"
+LABEL description="Application FastAPI pour les prédictions immobilère ave model XGBoost"

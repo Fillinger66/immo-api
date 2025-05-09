@@ -1,0 +1,12 @@
+
+
+
+services:
+  immo-api:
+    build: .
+    container_name: immo-server
+    ports:
+      - "8000:8000"
+    environment:
+      - PATH_TO_MODEL=model/xgb_model.model
+      - PATH_TO_PIPELINE=xgboost_pipeline.pipeline
