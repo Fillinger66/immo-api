@@ -213,6 +213,12 @@ async def predict(data: PropertyFeatures):
         print(f"An error occurred during prediction: {e}")
         return {"error": f"An internal server error occurred: {e}"}
 
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("api:app", host="0.0.0.0", port=port)
+
 # --- How to run the application ---
 # Run the application from your terminal using:
 # uvicorn api:app --reload
