@@ -1,20 +1,167 @@
-Property Price Prediction APIThis project provides a web API built with FastAPI to serve predictions from a trained XGBoost model. It also includes a simple HTML form allowing users to input property features and receive a price prediction through the API. The application is designed to be containerized using Docker for easy deployment.FeaturesFastAPI Backend: High-performance Python web framework for building the API.XGBoost Model: Integrates a trained XGBoost model for making property price predictions.Web Form Interface: A simple HTML page with a form to interact with the prediction API.Docker Containerization: Packages the application and its dependencies into a Docker image for consistent environments.Static File Serving: FastAPI serves the HTML and CSS files for the web form.Project Structure.
-├── main.py                 # FastAPI application code
-├── requirements.txt        # Python dependencies
-├── Dockerfile              # Instructions to build the Docker image
-├── xgboost_model.json      # Your trained XGBoost model file (example name)
-└── static/                 # Directory for static files (HTML, CSS)
-    ├── index.html          # The web form HTML page
-    └── styles.css          # Custom CSS for styling the form
-    └── your_pipelines_dir/ # Your pipelines and other model assets (if any)
-    └── your_models_dir/    # Your models and other model assets (if any)
-Note: The names xgboost_model.json, your_pipelines_dir/, and your_models_dir/ are examples. Please replace them with the actual names and paths used in your project and Dockerfile.Setup and InstallationPrerequisitesPython 3.7+DockerYour trained XGBoost model file (xgboost_model.json or similar).Any necessary pipeline files or encoders used during training.StepsClone the repository (if using Git):git clone <your-repository-url>
-cd <your-repository-directory>
-Install Python Dependencies:It's recommended to use a virtual environment.python -m venv .venv
-source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+# 🏠 Property Price Prediction API for Belgium market
+
+This project provides an example of web API built with **FastAPI** to serve predictions from a trained **XGBoost** model. It also includes a simple web form where users can input property details and receive an estimated price. The application is containerized with **Docker** for consistent deployment and easy scalability.
+
+🌐 **Live Demo**: [https://immo-predict.onrender.com](https://immo-predict.onrender.com)
+
+#### Note
+
+It will take some times for the application to start.
+
+---
+
+## 🚀 Features
+
+- **FastAPI Backend**: Python web framework for serving machine learning models.
+- **XGBoost Model**: Predicts property prices based on structured features for Belgium country.
+- **Web Form Interface**: HTML page served by FastAPI to collect user input.
+- **Dockerized**: Entire app is deployable in a consistent container environment.
+- **Deployed to Render**: Simple cloud deployment using [Render](https://render.com).
+
+---
+
+## 🗂️ Project Structure
+
+├── api.py # Main FastAPI application\
+├── Dockerfile # Docker build instructions\
+├── docker-compose.yaml # Docker Compose configuration\
+├── requirements.txt # Python dependencies\
+├── render.yaml # Render deployment configuration\
+├── static/ # Static files (HTML, CSS)\
+│ ├── index.html # Web form\
+│ └── styles.css # Styling for form\
+├── model/ # Trained XGBoost model files\
+├── pipeline/ # Preprocessing pipelines\
+├── lib/ # Utilities\
+├── test/ # Unit and integration tests\
+└── .gitignore # Git ignore rules\
+
+---
+
+## ⚙️ Setup and Installation
+
+### Prerequisites
+
+- Python 3.7+
+- Docker
+- A trained XGBoost model
+- Preprocessing pipeline files or encoders
+
+### Local Setup
+
+```bash
+git clone https://github.com/Fillinger66/immo-api.git
+cd immo-api
+
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
-Place Model and Pipeline Files:Ensure your trained XGBoost model file (xgboost_model.json) and any directories containing pipelines or other model assets (like encoders) are in the correct locations relative to your main.py and Dockerfile, as specified in your Dockerfile's COPY instructions and main.py's loading logic.Running LocallyYou have two main options for running the application locally:Option 1: Using Uvicorn (for testing Python code)This runs the FastAPI application directly using Uvicorn.uvicorn main:app --reload
-The --reload flag is useful during development as it restarts the server on code changes.Access the web form at http://127.0.0.1:8000/ and the API documentation at http://127.0.0.1:8000/docs.Option 2: Using Docker (Recommended for production parity)This builds and runs the application inside a Docker container, mimicking the production environment.Build the Docker Image:Navigate to the directory containing your Dockerfile.docker build -t property-prediction-api .
-Replace property-prediction-api with your desired image name.Run the Docker Container:docker run -p 8000:8000 property-prediction-api
-This maps port 8000 on your local machine to port 8000 inside the container.Access the web form at http://localhost:8000/ and the API documentation at http://localhost:8000/docs.Building the Docker ImageTo build the Docker image, navigate to the root directory of your project (where the Dockerfile is located) and run:docker build -t your-dockerhub-username/property-prediction-api:latest .
-Replace your-dockerhub-username with your Docker Hub username (or the desired registry).DeploymentThe Docker image you built can be deployed to any platform that supports running Docker containers. Render is a cloud platform that makes deploying Docker containers straightforward.Deploying to RenderPush your Docker image to a container registry (like Docker Hub, GitLab Registry, GitHub Packages, etc.).Sign in to Render (render.com).Create a new Web Service.Choose to deploy from a Git Repository (recommended for automatic builds on push) or an Existing Docker Image.Configure your service, specifying the image name or linking your repository. Render will handle building (if using Git) and running your container.Ensure the service is configured to listen on port 8000, as exposed in your Dockerfile.Refer to the Render documentation for detailed deployment instructions.API EndpointsGET /: Serves the HTML web form for property price prediction.POST /predict/: Accepts a JSON payload representing property features and returns a prediction from the XGBoost model.Request Body: JSON object matching the PropertyFeatures Pydantic model defined in main.py.Response Body: JSON object containing the prediction (e.g., {"prediction": [predicted_price]}).Contributing (Optional)If you wish to contribute to this project, please follow these steps:Fork the repository.Create a new branch for your feature or bugfix.Make your changes and commit them with clear messages.Push your branch to your fork.Submit a pull request to the original repository.License (Optional)This project is licensed under the [Specify Your License Here] - see the LICENSE.md file for details.
+```
+
+A rained model and a preprocessing pipeline are located in folders (model/, pipeline/).
+
+---
+## 🧪 Running Locally
+
+### Option 1: Uvicorn (Development)
+
+```
+uvicorn api:app --reload
+```
+
+#### Web Interface: http://127.0.0.1:8000/
+
+#### Swagger UI: http://127.0.0.1:8000/docs
+
+### Option 2: Docker (Production-like)
+```bash
+docker build -t property-prediction-api .
+docker run -p 8000:8000 property-prediction-api
+```
+
+## ☁️ Deployment to Render
+1. Push code to GitHub or push a Docker image to Docker Hub.
+
+2. Sign in to Render.
+
+3. Create a new Web Service.
+
+4. Deploy from Git or Docker image.
+
+5. Make sure it listens on port 8000.
+
+## 📡 API Endpoints
+
+### GET /
+#### Serves the HTML web form for property input.
+
+### GET /docs
+#### Swagger page for testing the API
+
+### POST /predict/
+#### Returns the predicted price based on property features.
+
+## 🔎 Example JSON Input (with value types):
+```json
+{
+  "type": "string",                          // string
+  "subtype": "string",                       // string
+  "bedroomCount": 0,                         // integer
+  "bathroomCount": 0,                        // integer
+  "province": "string",                      // string
+  "locality": "string",                      // string
+  "postCode": 0,                             // integer
+  "habitableSurface": 0.0,                   // float
+  "buildingCondition": "string",             // string (enum)
+  "buildingConstructionYear": 1900,          // integer
+  "facedeCount": 0,                          // integer
+  "hasLift": false,                          // boolean
+  "floodZoneType": "string",                 // string (enum)
+  "heatingType": "string",                   // string (enum)
+  "hasHeatPump": false,                      // boolean
+  "hasPhotovoltaicPanels": false,            // boolean
+  "hasThermicPanels": false,                 // boolean
+  "kitchenType": "string",                   // string (enum)
+  "landSurface": 0.0,                        // float
+  "hasGarden": true,                         // boolean
+  "gardenSurface": 0.0,                      // float
+  "parkingCountIndoor": 0,                   // integer
+  "parkingCountOutdoor": 0,                  // integer
+  "hasAirConditioning": false,               // boolean
+  "hasArmoredDoor": false,                   // boolean
+  "hasVisiophone": true,                     // boolean
+  "hasOffice": false,                        // boolean
+  "toiletCount": 0,                          // integer
+  "hasSwimmingPool": false,                  // boolean
+  "hasFireplace": false,                     // boolean
+  "hasTerrace": true,                        // boolean
+  "terraceSurface": 0.0,                     // float
+  "terraceOrientation": "string",            // string or 
+  "epcScore": "D",                           // string (A-G)
+  "cadastralIncome": 0.0,                    // float
+  "primaryEnergyConsumptionPerSqm": 0.0,     // float
+  "latitude": 0.0 ,                          // float
+  "longitude": 0.0,                          // float
+  "address": "string"                        // string
+}
+```
+
+## 📄 License
+#### This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
+
+#### You are free to:
+
+#### ✅ Share — copy and redistribute the material
+
+#### ✅ Adapt — remix, transform, and build upon it
+
+#### Under these conditions:
+
+#### 🔗 Attribution — You must give appropriate credit.
+
+#### 🚫 NonCommercial — You may not use the material for commercial purposes.
+
+### 🔗 [License Details](https://creativecommons.org/licenses/by-nc/4.0/)
