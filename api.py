@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+import html
 
 from pydantic import BaseModel
 from typing import Optional
@@ -115,7 +116,17 @@ async def read_root():
     return HTMLResponse(content=html_content)
 
 def create_dataframe(data:dict):
-    data["province"] = "Liège"
+
+
+    data["province"] = html.unescape(data["province"])
+    data["locality"] = html.unescape(data["locality"])
+
+    
+    
+
+    print("predict::create_dataframe:: -> data:")
+    print(data)
+
     columns = ['type', 'subtype', 'bedroomCount', 'bathroomCount', 'province',
        'locality', 'postCode', 'habitableSurface', 'buildingCondition',
        'buildingConstructionYear', 'facedeCount', 'hasLift', 'floodZoneType',
@@ -149,7 +160,7 @@ async def predict(data: PropertyFeatures):
         # We'll use a pandas DataFrame here as it's often convenient.
 
         # Convert the Pydantic model object to a dictionary
-        print("data:")
+        print("predict::data:")
         print(data)
         input_dict = data.model_dump() # Use .model_dump() for Pydantic v2+
 
@@ -165,6 +176,9 @@ async def predict(data: PropertyFeatures):
 
         # Get lat/lng from the zip code with Nominatim
         df = DataManager.get_lat_lng_for_zipcode(df=df,verbose=1)
+
+        df["latitude"] = df["latitude"].fillna(df["zipcode_Latitude"])
+        df["longitude"] = df["longitude"].fillna(df["zipcode_Longitude"])
 
         print(f"columns : {df.columns.to_list}")
 
