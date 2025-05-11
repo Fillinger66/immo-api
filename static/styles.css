@@ -52,6 +52,7 @@ p {
      text-align: center;
      margin-bottom: 25px;
      color: #fff;
+     font-weight: bold;
 }
 
 /* Form group styling */
@@ -167,7 +168,13 @@ button:active {
     color: #721c24;
 }
 
-
+a {
+        color: #00ccff !important; /* A different color for the link */
+        text-decoration: none !important;
+}
+a:hover {
+        text-decoration: underline !important;
+}
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .container {

@@ -115,6 +115,24 @@ async def read_root():
         html_content = f.read()
     return HTMLResponse(content=html_content)
 
+@app.get("/about.html", response_class=HTMLResponse)
+async def read_about():
+    """
+    Serves the main HTML page with the prediction form.
+    """
+    # Construct the full path to the index.html file within the 'static' directory
+    html_file_path = os.path.join("static", "about.html")
+
+    # Check if the file exists
+    if not os.path.exists(html_file_path):
+        # Return a 404 error if the file is not found
+        return HTMLResponse(content="<h1>Error: about.html not found in the 'static' directory!</h1>", status_code=404)
+
+    # Read the content of the HTML file and return it as an HTMLResponse
+    with open(html_file_path, "r") as f:
+        html_content = f.read()
+    return HTMLResponse(content=html_content)
+
 def create_dataframe(data:dict):
 
 
