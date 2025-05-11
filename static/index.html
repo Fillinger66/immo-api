@@ -7,12 +7,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/static/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
 </head>
 <body>
     <div class="container">
         <h1>Property Price Prediction</h1>
         <p>Enter the property details below to get a price prediction.</p>
-
+        <br/>
+        <br/>
         <form id="predictionForm" class="grid grid-cols-1 md:grid-cols-2 gap-4" accept-charset="UTF-8">
             <div class="form-group">
                 <label for="type">Type:</label>
@@ -2331,6 +2335,11 @@
             </div>
 
             <div class="form-group">
+                <label for="cadastralIncome">Cadastral Income:</label>
+                <input type="number" id="cadastralIncome" name="cadastralIncome" min="0">
+            </div>
+
+            <div class="form-group">
                 <label for="latitude">Latitude:</label>
                 <input type="number" id="latitude" name="latitude" step="0.000001">
             </div>
@@ -2338,11 +2347,6 @@
             <div class="form-group">
                 <label for="longitude">Longitude:</label>
                 <input type="number" id="longitude" name="longitude" step="0.000001">
-            </div>
-
-            <div class="form-group">
-                <label for="cadastralIncome">Cadastral Income:</label>
-                <input type="number" id="cadastralIncome" name="cadastralIncome" min="0">
             </div>
 
             <div class="form-group">
@@ -2360,8 +2364,28 @@
 
         <div id="predictionResult" class="hidden">
             </div>
-    </div>
 
+        
+        <p>&copy; 2025 Alexandre Kavadias. All rights reserved.</p>
+    </div>
+    <script>
+        new TomSelect("#locality", {
+          create: false,
+          sortField: {
+            field: "text",
+            direction: "asc"
+          }
+        });
+
+        new TomSelect("#postCode", {
+          create: false,
+          sortField: {
+            field: "number",
+            direction: "asc"
+          }
+        });
+
+      </script>
     <script>
         document.getElementById('predictionForm').addEventListener('submit', async function(event) {
             event.preventDefault(); // Prevent the default form submission

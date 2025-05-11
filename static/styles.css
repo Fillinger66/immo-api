@@ -6,30 +6,46 @@ body {
     background-color: #f4f7f6; /* Light grey background */
     color: #333; /* Dark grey text */
     line-height: 1.6;
-    margin: 0;
+    margin: 0 auto;
     padding: 20px;
     display: flex;
     justify-content: center;
     align-items: flex-start; /* Align to top */
     min-height: 100vh;
+    background-image: url("/static/background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /* Container for the form */
 .container {
-    max-width: 800px;
+    max-width: 800px !important;
+    margin: 0 auto; 
     width: 100%; /* Make container responsive */
     padding: 30px; /* Increased padding */
-    background-color: #1C6EA4; /* White background for the form area */
+    background-color: #001C6EA4; 
     border-radius: 12px; /* More rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Softer shadow */
     box-sizing: border-box; /* Include padding and border in element's total width */
 }
 
 /* Headings */
-h1, h2 {
+h1{
     color: #fff; /* A shade of royal blue */
     text-align: center;
     margin-bottom: 25px; /* More space below headings */
+    font-size: 35px !important;
+    font-weight: bold !important;
+}
+/* Headings */
+h2 {
+    color: #fff; /* A shade of royal blue */
+    text-align: center;
+    margin-bottom: 25px; /* More space below headings */
+    font-size: 20px !important;
+    font-weight: bold !important;
+    
 }
 
 p {
@@ -54,14 +70,15 @@ label {
 input[type="text"],
 input[type="number"],
 select {
-    width: 100%;
-    padding: 12px; /* Increased padding */
+    height: 45px;              /* Set a uniform height */
+    padding: 8px 12px;         /* Consistent padding */
+    border-radius: 6px;
     border: 1px solid #ccc;
-    border-radius: 6px; /* Slightly more rounded input fields */
-    box-sizing: border-box;
-    font-size: 1em;
-    transition: border-color 0.3s ease; /* Smooth transition on focus */
+    font-size: 16px;
+    width: 100%;               /* Allow flexibility inside grid */
+    box-sizing: border-box;    /* Include padding in width/height */
 }
+
 
 input[type="text"]:focus,
 input[type="number"]:focus,
@@ -92,7 +109,7 @@ select:focus {
 
 /* Submit button styling */
 button {
-    background-color: #fff; /* Royal blue */
+    background-color: #fff !important; /* Royal blue */
     color: white;
     padding: 12px 25px; /* Increased padding */
     border: none;
@@ -102,14 +119,18 @@ button {
     transition: background-color 0.3s ease, transform 0.1s ease; /* Smooth hover and press effect */
     display: inline-block; /* Allow margin auto for centering if needed */
     margin-top: 10px; /* Space above button */
+    padding: 10px !important;
 }
 
 button:hover {
-    background-color: #00416A; /* Darker blue on hover */
+    background-color: #00416A !important; /* Darker blue on hover */
+    color: #FFFFFF !important;
+    
 }
 
 button:active {
     transform: scale(0.98); /* Slightly shrink when pressed */
+
 }
 
 
