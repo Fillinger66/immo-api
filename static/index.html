@@ -2315,7 +2315,17 @@
 
             <div class="form-group">
                 <label for="terraceOrientation">Terrace Orientation:</label>
-                 <input type="text" id="terraceOrientation" name="terraceOrientation">
+                 <select id="terraceOrientation" name="terraceOrientation" >
+                    <option value="">Select terrace orient.</option>
+                    <option value="EAST">East</option>
+                    <option value="NORTH">North</option>
+                    <option value="NORTH_EAST">North east</option>
+                    <option value="NORTH_WEST">North west</option>
+                    <option value="SOUTH">South</option>
+                    <option value="SOUTH_EAST">South east</option>
+                    <option value="SOUTH_WEST">South west</option>
+                    <option value="WEST">West</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -2365,7 +2375,7 @@
         <div id="predictionResult" class="hidden">
             </div>
 
-        
+        <br/>
         <p>&copy; 2025 Alexandre Kavadias. All rights reserved.</p>
     </div>
     <script>

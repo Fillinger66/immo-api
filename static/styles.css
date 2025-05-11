@@ -88,6 +88,7 @@ select:focus {
     box-shadow: 0 0 5px rgba(0, 86, 179, 0.2); /* Subtle shadow on focus */
 }
 
+
 /* Checkbox group layout */
 .form-group .grid {
     display: grid;
