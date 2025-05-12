@@ -20,6 +20,7 @@ It will take some times for the application to start.
 - **Web Form Interface**: HTML page served by FastAPI to collect user input.
 - **Dockerized**: Entire app is deployable in a consistent container environment.
 - **Deployed to Render**: Simple cloud deployment using [Render](https://render.com).
+- **Deployed to Railway**: Simple cloud deployment using [Railway](https://railway.com/).
 
 ---
 
@@ -32,11 +33,12 @@ It will take some times for the application to start.
 ├── render.yaml # Render deployment configuration\
 ├── static/ # Static files (HTML, CSS)\
 │ ├── index.html # Web form\
+│ ├── about.html # about page\
 │ └── styles.css # Styling for form\
 ├── model/ # Trained XGBoost model files\
 ├── pipeline/ # Preprocessing pipelines\
 ├── lib/ # Utilities\
-├── test/ # Unit and integration tests\
+├── test/ # contains json example to request api\
 └── .gitignore # Git ignore rules\
 
 ---
@@ -69,7 +71,7 @@ A already trained model and a preprocessing pipeline are located in folders (mod
 ---
 ## 🧪 Running Locally
 
-### Option 1: Uvicorn (Development)
+### Option 1: [Uvicorn](https://www.uvicorn.org/) (Development)
 
 ```
 uvicorn api:app --reload
@@ -79,16 +81,16 @@ uvicorn api:app --reload
 
 #### Swagger UI: http://127.0.0.1:8000/docs
 
-### Option 2: Docker (Production-like)
+### Option 2: [Docker](https://www.docker.com/) (Production-like)
 ```bash
 docker build -t property-prediction-api .
 docker run -p 8000:8000 property-prediction-api
 ```
 
-## ☁️ Deployment to Render
+## ☁️ Deployment to [Render](https://render.com)
 1. Push code to GitHub or push a Docker image to Docker Hub.
 
-2. Sign in to Render.
+2. Sign in to [Render](https://render.com).
 
 3. Create a new Web Service.
 
@@ -96,10 +98,25 @@ docker run -p 8000:8000 property-prediction-api
 
 5. Make sure it listens on port 8000.
 
+## ☁️ Deployment to [Railway](https://railway.com/)
+
+1. Push code to GitHub or push a Docker image to Docker Hub.
+
+2. Sign in to [Railway](https://railway.com/).
+
+3. Create a new project.
+
+4. Deploy from Git repository.
+
+5. Make sure it listens on port 8000.
+
 ## 📡 API Endpoints
 
 ### GET /
 #### Serves the HTML web form for property input.
+
+### GET /about
+#### Serves the about HTML page.
 
 ### GET /docs
 #### Swagger page for testing the API

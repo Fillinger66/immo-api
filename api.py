@@ -165,7 +165,7 @@ async def read_root():
     return load_html_page("index.html")
    
 
-@app.get("/about.html", response_class=HTMLResponse)
+@app.get("/about", response_class=HTMLResponse)
 async def read_about():
     """
     Serves the about HTML page with the project description and author informations.
