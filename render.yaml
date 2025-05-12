@@ -1,3 +1,4 @@
+#Purpose of this file is to deploy the app on render
 services:
   - type: web
     name: immo-predict-app

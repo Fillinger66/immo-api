@@ -9,8 +9,6 @@ import html
 
 from pydantic import BaseModel
 from typing import Optional
-import xgboost as xgb
-import numpy as np
 import pandas as pd
 from lib.model.XGBoostModel import XGBoostModel
 from lib.DataPipeline import DataPipeline
@@ -26,7 +24,6 @@ try:
     print(f"XGBoost model loaded successfully from {MODEL_PATH}")
 except Exception as e:
     print(f"Error loading XGBoost model: {e}")
-    # Depending on your needs, you might want to exit or handle this error differently
     xgbmodel = None # Set model to None if loading fails
 
 
@@ -95,52 +92,30 @@ app.add_middleware(
 # The third argument "name='static'" is an internal name for this mounted directory.
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
-# --- Root Endpoint to Serve the HTML Form ---
-@app.get("/", response_class=HTMLResponse)
-async def read_root():
+#-----------------------------------------#
+#-------------- FUNCTIONS ----------------#
+#-----------------------------------------#
+def create_dataframe(data:dict) -> pd.DataFrame:
     """
-    Serves the main HTML page with the prediction form.
+    Creates a pandas DataFrame from a dictionary of property data.
+
+    This function takes a dictionary containing property details, unescapes
+    HTML entities in the 'province' and 'locality' fields, prints the
+    cleaned data (for debugging/logging purposes), defines the expected
+    column order for the DataFrame, and then creates a single-row DataFrame
+    from the processed data dictionary.
+
+    Args:
+        data (dict): A dictionary where keys are column names and values
+                     are the corresponding data for a single property.
+
+    Returns:
+        pd.DataFrame: A pandas DataFrame with a single row containing the
+                      processed property data, with columns in the specified
+                      order.
     """
-    # Construct the full path to the index.html file within the 'static' directory
-    html_file_path = os.path.join("static", "index.html")
-
-    # Check if the file exists
-    if not os.path.exists(html_file_path):
-        # Return a 404 error if the file is not found
-        return HTMLResponse(content="<h1>Error: index.html not found in the 'static' directory!</h1>", status_code=404)
-
-    # Read the content of the HTML file and return it as an HTMLResponse
-    with open(html_file_path, "r") as f:
-        html_content = f.read()
-    return HTMLResponse(content=html_content)
-
-@app.get("/about.html", response_class=HTMLResponse)
-async def read_about():
-    """
-    Serves the main HTML page with the prediction form.
-    """
-    # Construct the full path to the index.html file within the 'static' directory
-    html_file_path = os.path.join("static", "about.html")
-
-    # Check if the file exists
-    if not os.path.exists(html_file_path):
-        # Return a 404 error if the file is not found
-        return HTMLResponse(content="<h1>Error: about.html not found in the 'static' directory!</h1>", status_code=404)
-
-    # Read the content of the HTML file and return it as an HTMLResponse
-    with open(html_file_path, "r") as f:
-        html_content = f.read()
-    return HTMLResponse(content=html_content)
-
-def create_dataframe(data:dict):
-
-
     data["province"] = html.unescape(data["province"])
     data["locality"] = html.unescape(data["locality"])
-
-    
-    
 
     print("predict::create_dataframe:: -> data:")
     print(data)
@@ -159,81 +134,114 @@ def create_dataframe(data:dict):
     df = pd.DataFrame([data],columns=columns)
     return df
 
+def load_html_page(page_name:str) -> HTMLResponse:
 
+    html_content = None
+    # Construct the full path to the index.html file within the 'static' directory
+    html_file_path = os.path.join("static", page_name)
+
+    # Check if the file exists
+    if not os.path.exists(html_file_path):
+        # Return a 404 error if the file is not found
+        return HTMLResponse(content=f"<h1>Error: {load_html_page} not found in the 'static' directory!</h1>", status_code=404)
+
+    # Read the content of the HTML file and return it as an HTMLResponse
+    with open(html_file_path, "r") as f:
+        html_content = f.read()
+
+
+    return HTMLResponse(content=html_content)
+
+#-----------------------------------------#
+#----------------- ROUTES ----------------#
+#-----------------------------------------#
+
+# --- Root Endpoint to Serve the HTML Form ---
+@app.get("/", response_class=HTMLResponse)
+async def read_root() -> HTMLResponse:
+    """
+    Serves the main HTML page with the prediction form.
+    """
+    return load_html_page("index.html")
+   
+
+@app.get("/about.html", response_class=HTMLResponse)
+async def read_about() -> HTMLResponse:
+    """
+    Serves the about HTML page with the project description and author informations.
+    """
+    return load_html_page("about.html")
+   
 
 # --- Define the prediction endpoint ---
 @app.post("/predict/")
 async def predict(data: PropertyFeatures):
     """
-    Receives input data, makes a prediction using the XGBoost model,
-    and returns the prediction.
+    Receives input data, makes a prediction using the pretrained XGBoost model,
+    and returns the prediction as a list.
     """
     if xgbmodel is None:
         return {"error": "Model not loaded. Cannot make predictions."}
 
     try:
         # --- Prepare the input data for the model ---
-        # Convert the Pydantic model data into a format suitable for XGBoost.
-        # XGBoost models typically expect DMatrix, NumPy arrays, or pandas DataFrames.
-        # We'll use a pandas DataFrame here as it's often convenient.
-
-        # Convert the Pydantic model object to a dictionary
         print("predict::data:")
         print(data)
-        input_dict = data.model_dump() # Use .model_dump() for Pydantic v2+
-
+        # convert Pydantic basemodel to a python dict
+        input_dict = data.model_dump()
+        # Get the address to geocode it
         address = input_dict["address"]
         print("Address : "+address)
-
+        # Address is not useful for the model
         input_dict.pop("address")
         
-        
+        #Create the dataframe to be process by pipeline
         df = create_dataframe(input_dict)
-
-        
 
         # Get lat/lng from the zip code with Nominatim
         df = DataManager.get_lat_lng_for_zipcode(df=df,verbose=1)
-
+        # fill missing lat/lng with zipcode lat/lng
         df["latitude"] = df["latitude"].fillna(df["zipcode_Latitude"])
         df["longitude"] = df["longitude"].fillna(df["zipcode_Longitude"])
-
-        print(f"columns : {df.columns.to_list}")
-
-        print(f"Head : {df.head()}")
-
+       
+        """
         if input_dict["latitude"] == None:
             df["latitude"] = df["zipcode_Latitude"]
         if input_dict["latitude"] == None:
             df["longitude"] = df["zipcode_Longitude"]
+        """
         
-        
-        # Adjust display settings to show all columns
+        # --- Adjust display settings to show all columns ---
         pd.set_option('display.max_columns', None)  # No limit on the number of columns to display
         pd.set_option('display.width', None)        # No limit on the width of the display
         pd.set_option('display.max_colwidth', None) # No truncation of column content
-        print(f"df :\n{df.head()}")
+        # --- print the list of columns of dataframe ---
+        print(f"columns : {df.columns.to_list}")
+        # --- print the head of the dataframe ---
+        print(f"Head : {df.head()}")
 
         print("Pipeline creation")
+        # --- Load the pipeline from the file ---
         pipeline = DataPipeline(df=df,target_columns_name="price",path_to_save_pipeline="pipeline/xgboost_pipeline.pipeline")
-
+        # --- Use the pipeline to prepare data for the model ---
         test_data = pipeline.prepare_data_for_prediction()
 
         # --- Make the prediction ---
         prediction = xgbmodel.predict(test_data)
         print(f"Prediction : {prediction}")
 
-        # Return the raw prediction(s) as a list (to ensure JSON serializability)
+        # --- Return the raw prediction(s) as a list (to ensure JSON serializability) ---
         return {"prediction": prediction.tolist()}
 
     except Exception as e:
-        # Log the error for debugging
+        # --- Log the error for debugging ---
         print(f"An error occurred during prediction: {e}")
         return {"error": f"An internal server error occurred: {e}"}
 
 
 if __name__ == "__main__":
     import uvicorn
+
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("api:app", host="0.0.0.0", port=port)
 

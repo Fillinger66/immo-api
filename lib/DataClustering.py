@@ -12,8 +12,10 @@ import geopy
 from geopy.distance import geodesic
 
 class DataClustering:
-
-    # __init__ remains without city_center_coords
+    """
+        Class made to clustering data
+    """
+    
     def __init__(self):
         """
         Initializes the DataClustering class.

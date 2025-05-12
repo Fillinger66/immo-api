@@ -9,12 +9,38 @@ from lib.DataClustering import DataClustering
 import pickle
 
 class PipelineNotInitialized(Exception):
+    """Custom exception for uninitialized pipeline."""
     pass
 
 class DataPipeline:
+    """
+    A class designed to handle the end-to-end data processing pipeline
+    for a machine learning task, likely involving real estate or property data
+    based on the column names and transformations.
 
+    It encapsulates steps such as data loading (implicitly via constructor),
+    cleaning, handling missing values, feature transformation, splitting data,
+    and saving/loading the trained preprocessing pipeline.
 
-    def __init__(self,df:DataFrame,target_columns_name:str,path_to_save_pipeline="pipeline/xgboost_pipeline.pipeline",verbose=0):
+    Attributes:
+        df (pd.DataFrame): The pandas DataFrame containing the data to be processed.
+        target_columns_name (str): The name of the target variable column (e.g., 'price').
+        path_to_pipeline_file (str): The file path to save/load the scikit-learn pipeline.
+        verbose (int): Controls the verbosity of logging messages. 0 for silent,
+                       higher values for more messages.
+    """
+
+    def __init__(self,df:DataFrame,target_columns_name:str,path_to_save_pipeline:str="pipeline/xgboost_pipeline.pipeline",verbose:int=0):
+        """
+        Initializes the DataPipeline with the input DataFrame, target column name,
+        and an optional path for saving/loading the pipeline.
+
+        Args:
+            df (pd.DataFrame): The input pandas DataFrame.
+            target_columns_name (str): The name of the target column.
+            path_to_save_pipeline (str): The default path for the pipeline file.
+            verbose (int): Verbosity level (0 for silent).
+        """
         self.df = df
         self.target_columns_name = target_columns_name
         self.path_to_pipeline_file = path_to_save_pipeline
@@ -87,17 +113,40 @@ class DataPipeline:
 
     def remove_unrevelant_columns(self,unrevelant_columns:list):
         """
-        Remove unrelevant columns 
+        Removes specified irrelevant columns from the DataFrame.
+
+        This method modifies the DataFrame stored in `self.df` by dropping
+        the columns whose names are provided in the `unrevelant_columns` list.
+        This is typically done as an initial cleaning step in a data processing
+        pipeline to remove features that are not needed for analysis or modeling.
+
+        Args:
+            unrevelant_columns (list): A list of column names (strings) to be
+                                    removed from the DataFrame.
+
         """
         self.df = self.df.drop(columns=unrevelant_columns)
 
-    def dropna_target(self,target_columns):
+    def dropna_target(self,target_columns:str):
         """
-        Remove rows without value
+        Remove rows without value for target columns
         """
         self.df = self.df.dropna(subset=[target_columns])
 
     def dropna_for_columns(self,columns):
+        """
+        Drops rows from the DataFrame that have missing values (NaN) in specified columns.
+
+        This method modifies the DataFrame stored in `self.df` by removing any rows
+        where *at least one* of the columns listed in the `columns` argument has a
+        missing value. This is useful for ensuring that essential features used
+        later in the pipeline are complete.
+
+        Args:
+            columns (list): A list of column names (strings). Rows with NaN values
+                            in any of these columns will be dropped.
+
+        """
         self.df = self.df.dropna(subset=columns)
 
     def transform_boolean_to_int(self):
@@ -118,7 +167,20 @@ class DataPipeline:
         return boolean_features
 
     def manage_missing_values(self,df):
+        """
+        Manages missing values in specific columns of the input DataFrame.
 
+        This function applies various strategies to fill missing (NaN) values
+        in different property-related columns based on assumptions about their
+        meaning (e.g., filling counts/boolean flags with 0 or 1).
+
+        Args:
+            df (pd.DataFrame): The input pandas DataFrame containing property data.
+
+        Returns:
+            pd.DataFrame: The DataFrame with missing values handled in the specified columns.
+                        Note: The function modifies the DataFrame in place as well.
+        """
         df.loc[(df['hasTerrace'] != 1) & (df['terraceSurface'].isna()), 'terraceSurface'] = 0
 
         df["terraceSurface"] = df["terraceSurface"].fillna(0)
@@ -142,6 +204,7 @@ class DataPipeline:
         df["parkingCountOutdoor"] = df["parkingCountOutdoor"].fillna(0)
 
         return df
+    
     def transform_label_data(self,df):
         """Transform the label data to match the main dataframe."""
         # Filter only valid EPC scores 
@@ -227,23 +290,19 @@ class DataPipeline:
         """
         Executes a complete data processing and splitting pipeline.
 
+        This method orchestrates a series of steps to clean, transform, and prepare
+        the dataset for machine learning. It handles missing values, filters outliers,
+        potentially engineers new features (though some steps are commented out),
+        and prepares the data for model training and evaluation using scikit-learn
+        preprocessing and splitting utilities.
+
         Steps:
             1. Remove irrelevant columns.
             2. Drop rows with missing target values ('price').
-            3. Manage other missing values (using a separate method).
-            4. Transform label/categorical data (using a separate method).
-            5. Drop rows with missing values in specific essential columns.
-            6. Filter out potential price outliers.
-            7. Calculate distance to zipcode centroid feature.
-            8. Identify column types (numerical/categorical).
-            9. Prepare scikit-learn transformers for numerical and categorical columns.
-            10. Prepare the ColumnTransformer to apply these transformers.
-            11. Split data into features (X) and target (y).
-            12. Split data into training and testing sets.
-            13. Apply zipcode-based clustering and price/sqm calculation (assuming this is done by cluster.clusterize_zipcode_sqrt_meter).
-            14. Create a scikit-learn pipeline with the preprocessor.
-            15. Apply the preprocessor pipeline to training and testing features.
-            16. Return processed training/testing features, original training/testing target, and initial feature list.
+            3. Drop rows with missing values in specific essential columns.
+            4. Filter out potential price outliers.
+            5. Run pipeline and get splitted data into train/test
+            6. Return processed training/testing features, original training/testing target, and initial feature list.
 
         Parameters:
             unreavelant_columns (list): List of column names to remove.
@@ -258,12 +317,6 @@ class DataPipeline:
                   - y_test (pd.Series): Original testing target.
                   - initial_features_list (list): List of feature names before processing.
         """
-        # Instantiate the DataClustering class. This class is assumed to contain
-        # methods for location-based feature engineering and clustering.
-        cluster = DataClustering()
-
-        
-
         # --- Step 1: Remove irrelevant columns ---
         # Calls a helper method to remove columns specified in unreavelant_columns list.
         self.remove_unrevelant_columns(unreavelant_columns)
@@ -274,54 +327,25 @@ class DataPipeline:
         # Calls a helper method to remove rows where the target column has NaN.
         self.dropna_target(self.target_columns_name)
 
-        # --- Step 3: Manage other missing values ---
-        # Calls a helper method to handle missing values in other columns.
-        # The implementation of this method is not shown here, but it should
-        # apply imputation or other strategies to various columns in self.df.
-        
-        #self.manage_missing_values(self.df) # Note: Passes self.df, assumes manage_missing_values modifies it in place
-
-        # --- Step 4: Transform label/categorical data ---
-        # Calls a helper method to perform initial transformations on categorical
-        # or label data, potentially converting some to numerical or boolean types.
-        # The implementation is not shown.
-        
-        #self.transform_label_data(self.df) # Note: Passes self.df, assumes transform_label_data modifies it in place
-
-
-        # --- Step 5: Drop rows with missing values in specific essential columns ---
+        # --- Step 3: Drop rows with missing values in specific essential columns ---
         # Removes rows that still have NaNs in critical columns required for
         # subsequent steps or that are deemed essential features.
         self.dropna_for_columns(['bedroomCount','habitableSurface','terraceSurface',"postCode","buildingConstructionYear"])
 
-        # --- Step 6: Filter out potential price outliers ---
+        # --- Step 4: Filter out potential price outliers ---
         # Removes rows where the price is above a certain threshold (1,000,000).
         # This is a form of outlier removal based on the target variable.
-        print(f"Filtering prices > 1,000,000...")
+        print(f"DataPipeline::execute_pipeline -> Filtering prices > 1,000,000...")
         initial_rows = len(self.df)
         self.df = self.df[(self.df['price'] <= 1000000) & (self.df['price'] > 50000)]
-        print(f"Filtered {initial_rows - len(self.df)} rows. New shape: {self.df.shape}")
-
-
-        
-
-        # --- Step 7: Calculate distance to zipcode centroid feature ---
-        # Calculates the distance between each property's coordinates and its zipcode's coordinates.
-        # Assumes DataClustering instance 'cluster' has a method calculate_distance_to_zipcode
-        # that takes a row and returns the distance.
-        
-        # Note: This applies the calculation to the entire df before splitting.
-        # Ensure 'latitude', 'longitude', 'zipcode_Latitude', 'zipcode_Longitude' are available and clean.
-        
-        #print("Calculating distance to zipcode centroid feature...")
-        #self.df['distance_to_zipcode'] = self.df.apply(cluster.calculate_distance_to_zipcode, axis=1)
-        #print("Distance to zipcode feature added.")
+        print(f"DataPipeline::execute_pipeline -> Filtered {initial_rows - len(self.df)} rows. New shape: {self.df.shape}")
 
         print(self.df.columns.to_list)
+        # --- Step 5: Run pipeline and get splitted data into train/test ---
         X_train_processed, X_test_processed, y_train, y_test, features_list = self.run_pipeline(debug)
         
 
-        # --- Return processed data and initial features list ---
+        # --- Step 6 : Return processed data and initial features list ---
         # Returns the processed feature arrays (NumPy arrays), the original target Series,
         # and the list of feature names from the DataFrame BEFORE processing.
         # Note: features_list contains names before ColumnTransformer.
@@ -330,7 +354,24 @@ class DataPipeline:
 
 
     def create_pipeline(self):
-         # --- Step 8: Identify column types ---
+        """
+        Creates a scikit-learn preprocessing pipeline using ColumnTransformer.
+
+        This pipeline is designed to handle numerical and categorical features
+        separately, applying appropriate imputation and scaling/encoding steps
+        before training a machine learning model.
+
+        The function identifies numerical and categorical columns, defines
+        preprocessing steps for each type using scikit-learn Pipelines,
+        combines these steps with a ColumnTransformer, and returns the
+        complete preprocessing pipeline.
+
+        Returns:
+            sklearn.pipeline.Pipeline: A scikit-learn Pipeline object containing
+                                    the configured ColumnTransformer as the
+                                    first step.
+        """
+         # --- Step 1: Identify column types ---
         # Separates columns into lists based on their data type after previous cleaning/transformations.
         # The target column is explicitly excluded from the numerical features list.
         if self.target_columns_name in self.df.columns:
@@ -342,14 +383,13 @@ class DataPipeline:
         # they will end up in numeric_cols.
         categorical_cols = self.df.select_dtypes(include=["object", "bool"]).columns.tolist()
 
-        print(f"\nIdentified {len(numeric_cols)} numerical columns and {len(categorical_cols)} categorical columns.")
-        # print(f"Numerical columns: {numeric_cols[:5]}...") # Print first few
-        # print(f"Categorical columns: {categorical_cols[:5]}...") # Print first few
+        print(f"\nDataPipeline::create_pipeline -> Identified {len(numeric_cols)} numerical columns and {len(categorical_cols)} categorical columns.")
+        # print(f"DataPipeline::create_pipeline -> Numerical columns: {numeric_cols[:5]}...") # Print first few
+        # print(f"DataPipeline::create_pipeline -> Categorical columns: {categorical_cols[:5]}...") # Print first few
 
 
-        # --- Step 9: Prepare scikit-learn transformers ---
+        # --- Step 2: Prepare scikit-learn transformers ---
         # Defines preprocessing steps for different column types using Pipelines.
-
         # Numerical Transformer: Impute missing numerical values with the mean, then scale features to have zero mean and unit variance.
         numeric_transformer = Pipeline(steps=[
             ("imputer", SimpleImputer(strategy="mean")),
@@ -365,9 +405,9 @@ class DataPipeline:
             ("encoder", OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1))
         ])
 
-        print("Numerical and Categorical transformers defined.")
+        print("DataPipeline::create_pipeline -> Numerical and Categorical transformers defined.")
 
-        # --- Step 10: Prepare the ColumnTransformer ---
+        # --- Step 3: Prepare the ColumnTransformer ---
         # Combines the numerical and categorical transformers and specifies which columns each applies to.
         # Columns not listed in 'transformers' are dropped by default if remainder is not specified or is 'drop'.
         # In this configuration, columns NOT in numeric_cols or categorical_cols will be DROPPED.
@@ -384,20 +424,19 @@ class DataPipeline:
             ("preprocessor", preprocessor)
         ])
 
-        print("\nPreprocessing Pipeline created.")
-        print("ColumnTransformer defined.")
+        print("\nDataPipeline::create_pipeline -> Preprocessing Pipeline created.")
+        print("DataPipeline::create_pipeline -> ColumnTransformer defined.")
 
         
 
         return full_pipeline
     
     def prepare_data_for_prediction(self):
-
+        """
+        Load the pipeline and run the transform on 
+        the dataframe to prepare forwarding it to the model
+        """
         pipeline = self.load_pipeline()
-
-        #self.df = self.manage_missing_values(self.df)
-        #self.df = self.transform_label_data(self.df)
-        #self.transform_boolean_to_int()
 
         X_test_processed = pipeline.transform(self.df)
 
@@ -415,9 +454,7 @@ class DataPipeline:
         # they will end up in numeric_cols.
         categorical_cols = self.df.select_dtypes(include=["object", "bool"]).columns.tolist()
 
-        print(f"\nIdentified {len(numeric_cols)} numerical columns and {len(categorical_cols)} categorical columns.")
-        # print(f"Numerical columns: {numeric_cols[:5]}...") # Print first few
-        # print(f"Categorical columns: {categorical_cols[:5]}...") # Print first few
+        print(f"\nDatapipeline::run_pipeline -> Identified {len(numeric_cols)} numerical columns and {len(categorical_cols)} categorical columns.")
 
 
         # --- Step 9: Prepare scikit-learn transformers ---
@@ -438,7 +475,7 @@ class DataPipeline:
             ("encoder", OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1))
         ])
 
-        print("Numerical and Categorical transformers defined.")
+        print("Datapipeline::run_pipeline -> Numerical and Categorical transformers defined.")
 
         # --- Step 10: Prepare the ColumnTransformer ---
         # Combines the numerical and categorical transformers and specifies which columns each applies to.
@@ -454,7 +491,7 @@ class DataPipeline:
             # remainder='passthrough' # This line is commented out. Columns not in num_cols or cat_cols will be dropped.
         )
 
-        print("ColumnTransformer defined.")
+        print("Datapipeline::run_pipeline -> ColumnTransformer defined.")
 
         # Saving feature names for later use
         features_list = list(self.df.columns)
@@ -468,44 +505,12 @@ class DataPipeline:
         # Splits the feature and target data into subsets for training and evaluating the model.
         # test_size=0.2 means 20% of the data is used for testing, 80% for training.
         # random_state=42 ensures the split is the same each time the code is run.
-        print(f"\nSplitting data into train (80%) and test (20%)...")
+        print(f"\nDatapipeline::run_pipeline -> Splitting data into train (80%) and test (20%)...")
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        print(f"Shapes after split: X_train={X_train.shape}, X_test={X_test.shape}, y_train={y_train.shape}, y_test={y_test.shape}")
+        print(f"Datapipeline::run_pipeline -> Shapes after split: X_train={X_train.shape}, X_test={X_test.shape}, y_train={y_train.shape}, y_test={y_test.shape}")
 
 
-        # --- Step 13: Apply zipcode-based clustering and price/sqm calculation ---
-        # This step calls a method from the DataClustering class to perform
-        # clustering and calculate price/sqm features.
-        # It's unusual to add the target ('price') back to X_train here before this step.
-        # Also, clusterize_zipcode_sqrt_meter is expected to take X_train and X_test
-        # and return them with new features. This method's implementation is not shown.
-        # Note: Adding 'price' back to X_train temporarily might cause issues if
-        # clusterize_zipcode_sqrt_meter expects only features or if 'price'
-        # interferes with its logic.
-
-        #X_train["price"] = y_train # Adding target back to features temporarily? Review this step.
-        #print(f"\nApplying zipcode clustering and price/sqm calculation (using k={k})...")
-
-        # Assuming cluster.clusterize_zipcode_sqrt_meter takes train and test DFs
-        # and returns them with new features like 'avg_price_per_sqm'.
-        #X_train, X_test = cluster.clusterize_zipcode_sqrt_meter(X_train, X_test, k,False)
-        #print(f"Zipcode clustering and price/sqm calculation applied.\n{X_train.shape},{X_test.shape}")
-
-        # Note: If 'price' was added back to X_train, ensure clusterize_zipcode_sqrt_meter
-        # handles it correctly or removes it before returning X_train.
-        # If 'avg_price_per_sqm' is calculated here, you might need to add it
-        # to the lists of columns used by the ColumnTransformer if it's numerical.
-
-
-        # --- Optional: Drop rows with missing avg_price_per_sqm after calculation ---
-        # These lines are commented out, meaning rows with missing 'avg_price_per_sqm'
-        # will proceed to the preprocessor. If 'avg_price_per_sqm' is numerical,
-        # the numerical imputer will handle its NaNs.
-        #X_train = X_train.dropna(subset=["avg_price_per_sqm"])
-        #X_test = X_test.dropna(subset=["avg_price_per_sqm"])
-
-
-        # --- Step 14: Create the pipeline with preprocessor ---
+        # --- Step 13: Create the pipeline with preprocessor ---
         # Creates a simple pipeline that just applies the preprocessor.
         # This is done after splitting because the preprocessor needs to be fitted
         # ONLY on the training data, then used to transform both train and test.
@@ -514,26 +519,28 @@ class DataPipeline:
         ])
 
         
-        print("\nPreprocessing Pipeline created.")
+        print("\nDatapipeline::run_pipeline -> Preprocessing Pipeline created.")
 
-        # --- Step 15: Apply transformers ---
+        # --- Step 14: Apply transformers ---
         # Fits the preprocessor on the training data (learning imputation values,
         # encoder mappings, scaler parameters) and then transforms both the training
         # and testing feature sets.
-        print("Applying preprocessor to training data (fit_transform)...")
+        print("Datapipeline::run_pipeline -> Applying preprocessor to training data (fit_transform)...")
         X_train_processed = full_pipeline.fit_transform(X_train)
         
-        print("Applying preprocessor to testing data (transform)...")
+        print("Datapipeline::run_pipeline -> Applying preprocessor to testing data (transform)...")
         # Use transform, NOT fit_transform, on the test set to apply the transformations
         # learned from the training data.
         X_test_processed = full_pipeline.transform(X_test)
+
+        print(f"Datapipeline::run_pipeline -> save pipeline")
         self.save_pipeline(full_pipeline)
 
 
-        # --- Step 16: Debugging output ---
+        # --- Step 15: Debugging output ---
         # If debug is True, print the shapes of the processed feature arrays.
         if debug:
-            print(f"{'-'*20}\nX_Train_processed shape: {X_train_processed.shape}\n{'-'*20}\nX_test_processed shape: {X_test_processed.shape}")
+            print(f"{'-'*20}\nDatapipeline::run_pipeline -> X_Train_processed shape: {X_train_processed.shape}\n{'-'*20}\nX_test_processed shape: {X_test_processed.shape}")
 #            print(X_train[['postCode', 'avg_price_per_sqm', 'cluster_label']].head(5))
         
         return [X_train_processed, X_test_processed, y_train, y_test, features_list]
