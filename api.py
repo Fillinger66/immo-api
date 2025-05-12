@@ -95,7 +95,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 #-----------------------------------------#
 #-------------- FUNCTIONS ----------------#
 #-----------------------------------------#
-def create_dataframe(data:dict) -> pd.DataFrame:
+def create_dataframe(data:dict):
     """
     Creates a pandas DataFrame from a dictionary of property data.
 
@@ -134,7 +134,7 @@ def create_dataframe(data:dict) -> pd.DataFrame:
     df = pd.DataFrame([data],columns=columns)
     return df
 
-def load_html_page(page_name:str) -> HTMLResponse:
+def load_html_page(page_name:str):
 
     html_content = None
     # Construct the full path to the index.html file within the 'static' directory

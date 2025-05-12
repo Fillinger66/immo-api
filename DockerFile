@@ -13,6 +13,7 @@ RUN pip install --upgrade pip && \
 
 # copy application code to the working directory
 COPY api.py .
+COPY favicon.ico .
 
 
 # Copy directories and files to te app directory
