@@ -158,7 +158,7 @@ def load_html_page(page_name:str) -> HTMLResponse:
 
 # --- Root Endpoint to Serve the HTML Form ---
 @app.get("/", response_class=HTMLResponse)
-async def read_root() -> HTMLResponse:
+async def read_root():
     """
     Serves the main HTML page with the prediction form.
     """
@@ -166,7 +166,7 @@ async def read_root() -> HTMLResponse:
    
 
 @app.get("/about.html", response_class=HTMLResponse)
-async def read_about() -> HTMLResponse:
+async def read_about():
     """
     Serves the about HTML page with the project description and author informations.
     """
