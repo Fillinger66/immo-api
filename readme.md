@@ -3,6 +3,7 @@
 This project provides an example of web API built with **FastAPI** to serve predictions from a trained **XGBoost** model. It also includes a simple web form where users can input property details and receive an estimated price. The application is containerized with **Docker** for consistent deployment and easy scalability.
 
 🌐 **Live Demo on render**: [https://immo-predict.onrender.com](https://immo-predict.onrender.com)
+
 🌐 **Live Demo on railway**: [https://immo-eliza-predict.up.railway.app](https://immo-eliza-predict.up.railway.app/)
 
 
