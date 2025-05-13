@@ -1,4 +1,4 @@
-# 🏠 Property Price Prediction API for Belgium market
+# 🏠 **Property Price Prediction API for Belgium market**
 
 This project provides an example of web API built with **FastAPI** to serve predictions from a trained **XGBoost** model. It also includes a simple web form where users can input property details and receive an estimated price. The application is containerized with **Docker** for consistent deployment and easy scalability.
 
@@ -8,13 +8,18 @@ This project provides an example of web API built with **FastAPI** to serve pred
 
 
 
-#### Note
+#### **Note**
 
-It will take some times for the application to start.
+##### **Render**
+It will take some times for the application to start on Render as it is stopped after 1 minute of it's not used. Check [pricing](https://render.com/pricing) if you want better performance
+
+##### **Railway**
+
+Railway is much faster because of [cold start](https://docs.railway.com/reference/app-sleeping#waking-a-service-up) but you will be limited. Check [pricing](https://railway.com/pricing) if you want better performances
 
 ---
 
-## 🚀 Features
+## 🚀 **Features**
 
 - **FastAPI Backend**: Python web framework for serving machine learning models.
 - **XGBoost Model**: Predicts property prices based on structured features for Belgium country.
@@ -25,7 +30,7 @@ It will take some times for the application to start.
 
 ---
 
-## 🗂️ Project Structure
+## 🗂️ **Project Structure**
 
 ├── api.py # Main FastAPI application\
 ├── Dockerfile # Docker build instructions\
@@ -44,7 +49,7 @@ It will take some times for the application to start.
 
 ---
 
-## ⚙️ Setup and Installation
+## ⚙️ **Setup and Installation**
 
 ### Prerequisites
 
@@ -70,7 +75,7 @@ pip install -r requirements.txt
 A already trained model and a preprocessing pipeline are located in folders (model/, pipeline/).
 
 ---
-## 🧪 Running Locally
+## 🧪 **Running Locally**
 
 ### Option 1: [Uvicorn](https://www.uvicorn.org/) (Development)
 
@@ -88,7 +93,7 @@ docker build -t property-prediction-api .
 docker run -p 8000:8000 property-prediction-api
 ```
 
-## ☁️ Deployment to [Render](https://render.com)
+## ☁️ **Deployment to [Render](https://render.com)**
 1. Push code to GitHub or push a Docker image to Docker Hub.
 
 2. Sign in to [Render](https://render.com).
@@ -97,9 +102,10 @@ docker run -p 8000:8000 property-prediction-api
 
 4. Deploy from Git or Docker image.
 
-5. Make sure it listens on port 8000.
+5. As a start command use : ``` python api.py ```
 
-## ☁️ Deployment to [Railway](https://railway.com/)
+
+## ☁️ **Deployment to [Railway](https://railway.com/)**
 
 1. Push code to GitHub or push a Docker image to Docker Hub.
 
@@ -109,23 +115,23 @@ docker run -p 8000:8000 property-prediction-api
 
 4. Deploy from Git repository.
 
-5. Make sure it listens on port 8000.
+5. As a start command use : ``` python api.py ```
 
-## 📡 API Endpoints
+## 📡 **API Endpoints**
 
-### GET /
+### **GET /**
 #### Serves the HTML web form for property input.
 
-### GET /about
+### **GET /about**
 #### Serves the about HTML page.
 
-### GET /docs
+### **GET /docs**
 #### Swagger page for testing the API
 
-### POST /predict/
+### **POST /predict/**
 #### Returns the predicted price based on property features.
 
-## 🔎 Example JSON Input (with value types):
+## 🔎 **Example JSON Input (with value types):**
 ```json
 {
   "type": "string",                          // string
@@ -170,7 +176,7 @@ docker run -p 8000:8000 property-prediction-api
 }
 ```
 
-## 📄 License
+## 📄 **License**
 #### This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
 
 #### You are free to:
