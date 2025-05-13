@@ -13,6 +13,7 @@ import pandas as pd
 from lib.model.XGBoostModel import XGBoostModel
 from lib.DataPipeline import DataPipeline
 from lib.DataManager import DataManager
+from geopy.geocoders import Nominatim
 
 # XGBoost model file path
 MODEL_PATH = 'model/xgb_model.model'
@@ -152,6 +153,72 @@ def load_html_page(page_name:str):
 
     return HTMLResponse(content=html_content)
 
+def get_coordinates_belgium(address):
+    """
+    Retrieves the latitude and longitude for a given address in Belgium using Nominatim.
+
+    Args:
+        address (str): The address to geocode.
+
+    Returns:
+        tuple or None: A tuple containing (latitude, longitude) if found, otherwise None.
+    """
+    geolocator = Nominatim(user_agent="my_belgium_geocoder")
+    try:
+        location = geolocator.geocode(address)
+        if location:
+            return location.latitude, location.longitude
+        else:
+            return None
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
+def get_lat_lng_for_prediction(df:pd.DataFrame, input_dict:dict):
+    """
+    Retrieves the latitude and longitude for a given address in Belgium using Nominatim.
+    It will apply lat/lng from the full address or will put zipCode lat/lng instead if error
+    or no address
+
+    Args:
+        df (DataFrame): The dataframe where lat/lng will be put in
+        input_dict (dict) : the dictinnary of the values send by the user
+
+    Returns:
+       None
+    """
+    try:
+        # Get the address to geocode it
+        address = input_dict["address"]
+        # Address is not useful for the model
+        input_dict.pop("address")
+        # Manage to get latitude/longitude from address if it'ss mentionned
+        # else we will get latitude/longitude from zipCode
+        if address != None and input_dict["locality"] !=None and input_dict["postCode"] !=None:
+            print("predict::data -> Address : "+address+"")
+            # address format : Grand Place 1, 1000 Brussels, Belgium
+            complete_address = address+","+str(input_dict["postCode"])+" "+input_dict["locality"]+" Belgium"
+            print("Address : "+complete_address+"")
+            coordinates = get_coordinates_belgium(complete_address)
+            if coordinates:
+                lat, lng = coordinates
+                df["latitude"] = lat
+                df["longitude"] = lng
+                print(f"predict::data -> Coordinates for '{complete_address}': Latitude = {lat}, Longitude = {lng}")
+            else:
+                df["latitude"] = df["latitude"].fillna(df["zipcode_Latitude"])
+                df["longitude"] = df["longitude"].fillna(df["zipcode_Longitude"])
+            
+        else:
+            # fill missing lat/lng with zipcode lat/lng
+            df["latitude"] = df["latitude"].fillna(df["zipcode_Latitude"])
+            df["longitude"] = df["longitude"].fillna(df["zipcode_Longitude"])
+    except Exception as ex:
+        print(f"predict::data:: Exception geocoder -> {ex}")
+        df["latitude"] = df["latitude"].fillna(df["zipcode_Latitude"])
+        df["longitude"] = df["longitude"].fillna(df["zipcode_Longitude"])
+
+
 #-----------------------------------------#
 #----------------- ROUTES ----------------#
 #-----------------------------------------#
@@ -189,27 +256,15 @@ async def predict(data: PropertyFeatures):
         print(data)
         # convert Pydantic basemodel to a python dict
         input_dict = data.model_dump()
-        # Get the address to geocode it
-        address = input_dict["address"]
-        print("Address : "+address)
-        # Address is not useful for the model
-        input_dict.pop("address")
-        
+
         #Create the dataframe to be process by pipeline
         df = create_dataframe(input_dict)
 
         # Get lat/lng from the zip code with Nominatim
         df = DataManager.get_lat_lng_for_zipcode(df=df,verbose=1)
-        # fill missing lat/lng with zipcode lat/lng
-        df["latitude"] = df["latitude"].fillna(df["zipcode_Latitude"])
-        df["longitude"] = df["longitude"].fillna(df["zipcode_Longitude"])
-       
-        """
-        if input_dict["latitude"] == None:
-            df["latitude"] = df["zipcode_Latitude"]
-        if input_dict["latitude"] == None:
-            df["longitude"] = df["zipcode_Longitude"]
-        """
+
+        # Try getting lat/lng from the address if exist with Nominatim too
+        get_lat_lng_for_prediction(df, input_dict)
         
         # --- Adjust display settings to show all columns ---
         pd.set_option('display.max_columns', None)  # No limit on the number of columns to display
