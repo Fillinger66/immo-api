@@ -12,21 +12,55 @@
         <h1>About This Project</h1>
 
         <p>This page presents an example web project that implements an XGBoost model for real estate price prediction in Belgium.</p>
+        <p>This project is intended as an example to illustrate the application of machine learning models in the field of real estate estimation.</p>
 
         <h2>The Model</h2>
-        <p>The core of this project relies on the use of an XGBoost (Extreme Gradient Boosting) model to estimate real estate prices. XGBoost is a powerful and efficient machine learning library, widely used for regression and classification tasks.</p>
+       <!-- <p>The core of this project relies on the use of an XGBoost (Extreme Gradient Boosting) model to estimate real estate prices. XGBoost is a powerful and efficient machine learning library, widely used for regression and classification tasks.</p> -->
+        <p>To estimate real estate prices, this project utilizes an XGBoost (Extreme Gradient Boosting) model, a powerful and efficient machine learning library well-suited for regression tasks. This model learned complex relationships within a dataset of around 16.000 historical property listings across Belgium, with prices ranging from 50.000&euro; to 1.000.000&euro;, to provide price predictions. Its performance was then evaluated on a separate test set of around 4000 listings to ensure its accuracy on unseen data.</p>
 
+        <p>The performance of our XGBoost model has been evaluated using key metrics, as detailed in the table below. Understanding these metrics helps gauge the reliability of the price estimates.</p>
+
+        <div class="metrics-table-container">
+            <table class="metrics-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Full term</th>
+                        <th>Value</th>
+                        <th>Impact on Price Prediction</th>
+                        <th>Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>MAE</td>
+                        <td>Mean Absolute Error</td>
+                        <td>46000&nbsp;&euro;</td>
+                        <td>Average error in our predicted property prices for Belgium (46000&euro; difference from the real price, on average).</td>
+                        <td><a href="https://en.wikipedia.org/wiki/Mean_absolute_error" target="_blank" rel="noopener noreferrer">Wikipedia</a></td>
+                    </tr>
+                    <tr>
+                        <td>RMSE</td>
+                        <td>Root Mean Squared Error</td>
+                        <td>70000&nbsp;&euro;</td>
+                        <td>Like MAE, but bigger errors in our price predictions count more, indicating potential for larger inaccuracies in some cases.</td>
+                        <td><a href="https://en.wikipedia.org/wiki/Root-mean-square_deviation" target="_blank" rel="noopener noreferrer">Wikipedia</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <h2>The Application</h2>
-        <p>This demonstration website serves as an interface to interact with the prediction model. It allows (in the context of this example) to submit characteristics related to a property in Belgium and obtain a price estimation based on the trained model.</p>
+        <p>This demonstration website serves as an interface to interact with our XGBoost prediction model. It allows (in the context of this example) to submit characteristics related to a property in Belgium and get an estimated price based on the trained model.</p>
 
+        
         <h2>Author</h2>
         <p>This project was created by <a href="https://www.linkedin.com/in/alexandrekavadias/" target="_blank">Alexandre Kavadias</a>.</p>
 
         <h2>Source Code</h2>
-        <p>The source code for this project is (or will be) available on GitHub. You can explore the code, understand the model implementation, and potentially contribute via the following link:</p>
+        <p>The source code for this project is available on GitHub. You can explore the code, understand the model implementation.</p>
         <p><a href="https://github.com/Fillinger66/immo-api" target="_blank">https://github.com/Fillinger66/immo-api</a></p>
 
-        <p>This project is intended as an example to illustrate the application of machine learning models in the field of real estate estimation.</p>
+        
     </div>
 </body>
 </html>

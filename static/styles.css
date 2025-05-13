@@ -147,6 +147,15 @@ button:active {
     font-weight: bold;
     word-break: break-word; /* Prevent long results from overflowing */
 }
+#predictionText{
+    margin-top: 30px; /* More space above result */
+    padding: 20px; /* Increased padding */
+    border-radius: 8px;
+    text-align: left;
+    font-size: 0.8em !important; /* Larger font for result */
+    font-weight: bold;
+    word-break: break-word; /* Prevent long results from overflowing */
+}
 
 /* Colors for prediction result based on status (example) */
 #predictionResult.hidden {
@@ -196,4 +205,54 @@ a:hover {
          width: 100%; /* Full width button on very small screens */
          padding: 15px; /* Larger touch target */
      }
+}
+
+
+/* Style for the model evaluation metrics table */
+.metrics-table-container {
+  margin-top: 30px; /* Add some space above the table */
+  width: 100%; /* Make the container responsive */
+  display: flex;
+  justify-content: center; /* Center the table horizontally */
+}
+
+.metrics-table {
+  border-collapse: collapse;
+  width: auto; /* Adjust width based on content */
+  max-width: 600px; /* Set a maximum width if needed */
+  background-color: #001C6E80; /* Semi-transparent background to match container */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #fff; /* White text for better contrast on the dark background */
+  margin-bottom: 20px; /* Space below the table */
+}
+
+.metrics-table th, .metrics-table td {
+  border: 1px solid #003380; /* Darker blue border */
+  padding: 10px;
+  text-align: left;
+  font-size: 0.9em; /* Slightly smaller font size */
+}
+
+.metrics-table th {
+  background-color: #003380; /* Darker blue header background */
+  font-weight: bold;
+  text-align: center;
+}
+
+.metrics-table td b {
+  color: #00ccff; /* Highlight key terms in definitions */
+  font-weight: bold;
+}
+
+/* Responsive adjustments for the table */
+@media (max-width: 600px) {
+  .metrics-table {
+    width: 95%; /* Make table take up more width on smaller screens */
+  }
+  .metrics-table th, .metrics-table td {
+    padding: 8px;
+    font-size: 0.85em;
+    font-weight: bold;
+  }
 }

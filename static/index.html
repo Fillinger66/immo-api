@@ -2375,7 +2375,7 @@
 
         <div id="predictionResult" class="hidden">
             </div>
-
+        <br>
        <div id="about">
         <p>&copy; 2025 Alexandre Kavadias. All rights reserved. | <a href="about.html">About This Project</a></p>
         </div>  
@@ -2447,8 +2447,10 @@
 
 
             console.log("Sending JSON data:", jsonData); // Log the JSON being sent
-
+            const MAE = 46000;
             const predictionResultDiv = document.getElementById('predictionResult');
+            predictionResultDiv.classList.add('hidden');
+            predictionResultDiv.innerHTML=""
 
             try {
                 // Send the JSON data to the FastAPI /predict endpoint
@@ -2468,12 +2470,19 @@
 
                 const result = await response.json();
                 console.log("Received prediction:", result); // Log the received result
-
+                const localitySelect = document.getElementById("locality");
+                let selectedLocality = ""
+                if (localitySelect) 
+                    selectedLocality = "in "+localitySelect.value;
                 // Display the prediction result
                 if (result && result.prediction !== undefined) {
                      // Format the prediction nicely, e.g., as currency
                     const predictedPrice = Array.isArray(result.prediction) ? result.prediction[0] : result.prediction; // Handle potential list output
-                    predictionResultDiv.innerHTML = `Predicted Price: <strong>${predictedPrice.toFixed(2)} &euro;</strong>`;
+                    predictionResultDiv.innerHTML = `Estimate Price: <strong>${predictedPrice.toFixed(0)} &euro;</strong><br>
+                    <div id="predictionText">Our model's average prediction error (Mean Absolute Error - MAE) across the Belgian housing market is approximately ${MAE}&euro;.<br><br>
+                    While our estimated price is ${predictedPrice.toFixed(0)} &euro;, the actual selling price could reasonably be expected to fall within a range of approximately <br><br><span style=" font-size: 1.2em;"><center><b> ${parseFloat(predictedPrice.toFixed(0))-MAE}&euro;</b> to <b>${parseFloat(predictedPrice.toFixed(0))+MAE}&euro;</center></b></span><br>
+                    While our model provides an estimate, the actual price ${selectedLocality} could vary more significantly due to the characteristics of the local market compared to the national average.<br><br>
+                    We recommend considering these regional differences and potentially consulting local real estate experts for a more precise understanding of the ${selectedLocality} market.</div>`;
                     predictionResultDiv.classList.remove('hidden');
                     predictionResultDiv.style.backgroundColor = '#d4edda'; /* Success color */
                     predictionResultDiv.style.borderColor = '#c3e6cb';
