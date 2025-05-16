@@ -10,14 +10,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script src="static/script.js"></script>
 
 </head>
-<body>
+<body onload="initializeApp()">
+   
     <div class="container">
         <h1>Property Price Prediction</h1>
         <p>Enter the property details below to get a price prediction.</p>
         <br/>
         <br/>
+        
         <form id="predictionForm" class="grid grid-cols-1 md:grid-cols-2 gap-4" accept-charset="UTF-8">
             <div class="form-group">
                 <label for="type">Type:</label>
@@ -2349,17 +2352,7 @@
                 <label for="cadastralIncome">Cadastral Income:</label>
                 <input type="number" id="cadastralIncome" name="cadastralIncome" min="0">
             </div>
-
-            <div class="form-group">
-                <label for="latitude">Latitude:</label>
-                <input type="number" id="latitude" name="latitude" step="0.000001">
-            </div>
-
-            <div class="form-group">
-                <label for="longitude">Longitude:</label>
-                <input type="number" id="longitude" name="longitude" step="0.000001">
-            </div>
-
+           
             <div class="form-group">
                 <label for="primaryEnergyConsumptionPerSqm">Primary Energy Consumption (kWh/sqm):</label>
                 <input type="number" id="primaryEnergyConsumptionPerSqm" name="primaryEnergyConsumptionPerSqm" min="0">
@@ -2372,143 +2365,21 @@
                 <button type="submit">Get Prediction</button>
             </div>
         </form>
-
+         <div id="loadingPopup" class="form-group hidden">
+            <div class="popup-content">
+                <p>Price estimation in progress...</p>
+            </div>
+        </div>
         <div id="predictionResult" class="hidden">
             </div>
         <br>
        <div id="about">
         <p>&copy; 2025 Alexandre Kavadias. All rights reserved. | <a href="about.html">About This Project</a></p>
         </div>  
-    </div>
-    
-    <script>
-        new TomSelect("#locality", {
-          create: false,
-          sortField: {
-            field: "text",
-            direction: "asc"
-          }
-        });
-
-        new TomSelect("#postCode", {
-          create: false,
-          sortField: {
-            field: "number",
-            direction: "asc"
-          }
-        });
-
-      </script>
-    <script>
-        document.getElementById('predictionForm').addEventListener('submit', async function(event) {
-            event.preventDefault(); // Prevent the default form submission
-
-            const form = event.target;
-            const formData = new FormData(form);
-            const jsonData = {};
-
-            // Collect form data and format it into a JSON object
-            // Handle different input types (text, number, checkbox)
-            for (const [key, value] of formData.entries()) {
-                // For numbers, convert to float or int
-                if (['bedroomCount', 'bathroomCount', 'postCode', 'buildingConstructionYear',
-                     'facedeCount', 'parkingCountIndoor', 'parkingCountOutdoor',
-                     'toiletCount', 'cadastralIncome', 'primaryEnergyConsumptionPerSqm'].includes(key)) {
-                    jsonData[key] = value ? parseInt(value) : null;
-                } else if (['habitableSurface', 'landSurface', 'gardenSurface', 'terraceSurface',
-                           'latitude', 'longitude'].includes(key)) {
-                     jsonData[key] = value ? parseFloat(value) : null;
-                }
-                // For checkboxes, they only appear in formData if checked.
-                // We need to explicitly set false for unchecked ones if the model expects a boolean.
-                // A simpler approach for this form is to only include checked ones and handle missing in backend,
-                // but let's explicitly set booleans based on presence/absence for clarity.
-                else if (['hasLift', 'hasHeatPump', 'hasPhotovoltaicPanels', 'hasThermicPanels',
-                          'hasGarden', 'hasAirConditioning', 'hasArmoredDoor', 'hasVisiophone',
-                          'hasOffice', 'hasSwimmingPool', 'hasFireplace', 'hasTerrace'].includes(key)) {
-                     // If the checkbox is present in formData, it was checked (value is 'true' from HTML)
-                     jsonData[key] = value === 'true';
-                 }
-                else {
-                    // For other text/select inputs
-                    jsonData[key] = value || null; // Use null for empty strings
-                }
-            }
-
-             // Explicitly set boolean fields to false if they were not checked
-            const booleanFields = ['hasLift', 'hasHeatPump', 'hasPhotovoltaicPanels', 'hasThermicPanels',
-                                   'hasGarden', 'hasAirConditioning', 'hasArmoredDoor', 'hasVisiophone',
-                                   'hasOffice', 'hasSwimmingPool', 'hasFireplace', 'hasTerrace'];
-            booleanFields.forEach(field => {
-                if (jsonData[field] === undefined) {
-                    jsonData[field] = false;
-                }
-            });
-
-
-            console.log("Sending JSON data:", jsonData); // Log the JSON being sent
-            const MAE = 46000;
-            const predictionResultDiv = document.getElementById('predictionResult');
-            predictionResultDiv.classList.add('hidden');
-            predictionResultDiv.innerHTML=""
-
-            try {
-                // Send the JSON data to the FastAPI /predict endpoint
-                const response = await fetch('/predict/', { // Use '/predict/' if running on the same host/port as FastAPI
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json; charset=UTF-8',
-                        'accept': 'application/json'
-                    },
-                    body: JSON.stringify(jsonData)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(`API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
-                }
-
-                const result = await response.json();
-                console.log("Received prediction:", result); // Log the received result
-                const localitySelect = document.getElementById("locality");
-                let selectedLocality = ""
-                if (localitySelect) 
-                    selectedLocality = "in "+localitySelect.value;
-                // Display the prediction result
-                if (result && result.prediction !== undefined) {
-                     // Format the prediction nicely, e.g., as currency
-                    const predictedPrice = Array.isArray(result.prediction) ? result.prediction[0] : result.prediction; // Handle potential list output
-                    predictionResultDiv.innerHTML = `Estimate Price: <strong>${predictedPrice.toFixed(0)} &euro;</strong><br>
-                    <div id="predictionText">Our model's average prediction error (Mean Absolute Error - MAE) across the Belgian housing market is approximately ${MAE}&euro;.<br><br>
-                    While our estimated price is ${predictedPrice.toFixed(0)} &euro;, the actual selling price could reasonably be expected to fall within a range of approximately <br><br><span style=" font-size: 1.2em;"><center><b> ${parseFloat(predictedPrice.toFixed(0))-MAE}&euro;</b> to <b>${parseFloat(predictedPrice.toFixed(0))+MAE}&euro;</center></b></span><br>
-                    While our model provides an estimate, the actual price ${selectedLocality} could vary more significantly due to the characteristics of the local market compared to the national average.<br><br>
-                    We recommend considering these regional differences and potentially consulting local real estate experts for a more precise understanding of the ${selectedLocality} market.</div>`;
-                    predictionResultDiv.classList.remove('hidden');
-                    predictionResultDiv.style.backgroundColor = '#d4edda'; /* Success color */
-                    predictionResultDiv.style.borderColor = '#c3e6cb';
-                    predictionResultDiv.style.color = '#155724';
-                } else {
-                     predictionResultDiv.innerHTML = `Prediction received, but format is unexpected: ${JSON.stringify(result)}`;
-                     predictionResultDiv.classList.remove('hidden');
-                     predictionResultDiv.style.backgroundColor = '#fff3cd'; /* Warning color */
-                     predictionResultDiv.style.borderColor = '#ffeeba';
-                     predictionResultDiv.style.color = '#856404';
-                }
-
-
-            } catch (error) {
-                console.error("Error fetching prediction:", error);
-                predictionResultDiv.innerHTML = `Error getting prediction: ${error.message}`;
-                predictionResultDiv.classList.remove('hidden');
-                 predictionResultDiv.style.backgroundColor = '#f8d7da'; /* Error color */
-                predictionResultDiv.style.borderColor = '#f5c6cb';
-                predictionResultDiv.style.color = '#721c24';
-            }
-        });
-    </script>
-    
+    </div> 
    
-
+    
+</div>
 </body>
 
 </html>

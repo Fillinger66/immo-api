@@ -256,3 +256,57 @@ a:hover {
     font-weight: bold;
   }
 }
+
+/* Popup styles */
+.popup-overlay {
+    position: fixed; /* Stay in place even if page scrolls */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black background */
+    display: flex;  /* <-- Added display: flex; */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's on top of other content */
+}
+
+.popup-content {
+    background-color: #fff;
+    padding: 25px 40px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    text-align: center;
+    color: #333;
+    /* min-width: 200px;  Optional: Ensure it has some minimum width */
+}
+
+.popup-content p {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+/* Simple CSS Spinner */
+.spinner {
+    margin: 0 auto; /* Center the spinner */
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #09f; /* Spinner color */
+    animation: spin 1s ease infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Utility class to hide elements */
+.hidden {
+    display: none !important;
+}
