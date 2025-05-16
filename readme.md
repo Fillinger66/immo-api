@@ -6,6 +6,8 @@ This project provides an example of web API built with **FastAPI** to serve pred
 
 🌐 **Live Demo on railway**: [https://immo-eliza-predict.up.railway.app](https://immo-eliza-predict.up.railway.app/)
 
+🌐 **Live Demo on HuggingFace**: [https://huggingface.co/spaces/Fillinger66/immo-eliza-demo](https://huggingface.co/spaces/Fillinger66/immo-eliza-demo)
+
 
 
 #### **Note**
